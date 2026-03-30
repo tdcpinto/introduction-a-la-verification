@@ -1,1 +1,5 @@
 MODULE main
+
+    VAR
+        -- on peut déclare des valeurs entières
+        time : 0..10;
