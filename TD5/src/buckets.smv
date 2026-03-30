@@ -1,0 +1,27 @@
+MODULE main
+
+    -- On a trois seaux de capacités :
+    --    12 litres
+    --    8 litres
+    --    5 litres
+    -- On commence avec le seau de 12 litres plein
+    -- On peut tranvaser l'eau d'un seau à l'autre
+    -- mais comme ils ne sont pas gradués, il faut 
+    -- transvaser jusqu'à ce que le seau qui reçoit
+    -- soit plein
+    --
+    -- ex : je verse le seau de 12 litres dans celui
+    -- de 5 litres --> j'ai à présent 7 litres dans
+    -- le seau de 12 litres, et 5 dans celui de 5 litres
+    --
+    -- Question : Est-il possible de faire une suite de
+    -- transvasement, tel qu'on ait 6 litres dans le seau
+    -- de 12 litres, et 6 litres dans le seau de 8 litres ?
+    --
+    -- Ajoutez aussi une propriété qui vérifie que
+    -- la somme des contenus des seaux est toujours 12.
+    
+    -- Une fois cela fait, essayez de voir s'il existe une
+    -- solution avec le grand seau qui aurait une contenance
+    -- de 13 litres (on autorisera un litre dans le seau
+    -- de 5 litres).
