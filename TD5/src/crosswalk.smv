@@ -1,0 +1,45 @@
+MODULE main
+
+    -- on veut simuler un passage piéton,
+    -- pour ce faire on simule le feu des voitures
+    -- et celui des piétons
+    -- le but sera de s'assurer que notre logique
+    -- permet le bon fonctionnement des deux feux
+    -- sans accident
+
+    VAR
+        -- le feu des voitures (les anglais voit le
+        -- feu orange 'jaune', allez savoir pourquoi)
+        c_light : {red, yellow, green};
+
+        -- le feu des piétons
+        p_light : {red, green};
+
+        -- vous pouvez rajouter des variables si vous le souhaitez
+
+    -- on peut définir des propriétés dans des variables
+    DEFINE
+        car_go := (c_light = green | c_light = yellow);
+        walk := p_light = green;
+
+    ASSIGN
+        -- à vous de définir les règles de transitions
+
+    -- toutes les propriétés ci-dessous doivent
+    -- être vraies
+    
+    -- le feu voiture n'est pas vert ou orange en même temps
+    -- que celui des piétons
+    SPEC AG !(car_go & walk);
+
+    -- le feu voiture alterne entre les trois couleurs pour toujours
+    LTLSPEC G F c_light = green;
+    LTLSPEC G F c_light = yellow;
+    LTLSPEC G F c_light = red;
+
+    -- le feu piéton alterne entre les deux couleurs pour toujours
+    LTLSPEC G F p_light = green;
+    LTLSPEC G F p_light = red;
+
+    -- le feu piéton et le feu voiture sont rouges en même temps
+    LTLSPEC G F (p_light = red & c_light = red);

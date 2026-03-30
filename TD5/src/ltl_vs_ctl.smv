@@ -1,0 +1,16 @@
+MODULE main
+
+    VAR
+        state : {off, working, done};
+
+    ASSIGN
+        init(state) := off;
+        next(state) := case
+            state = off : {off, working};
+            state = working : done;
+            state = done : done;
+            TRUE : state;
+        esac;
+
+    SPEC AF AG (state = off | state = done);
+    LTLSPEC F G (state = off | state = done);

@@ -1,0 +1,5 @@
+MODULE main
+
+    -- contrainte :
+    -- le loup, la chèvre et le chou doivent tous les trois
+    -- commencer du même côté de la rivière
