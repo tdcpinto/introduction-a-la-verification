@@ -1,0 +1,58 @@
+MODULE main
+
+    -- les variables de cette machine
+    VAR
+        -- les deux états possibles de la machine
+        state : {on, off, broken};
+
+        -- les actions possibles
+        action : {start, stop};
+
+    -- les règles de transitions ainsi que 
+    -- la valeur initiale de certaines variables
+    ASSIGN
+
+        -- la valeur initiale de 'state'
+        -- on n'initialise pas 'action' car c'est 
+        -- une variable libre, c'est à dire que sa 
+        -- valeur peut être choisie arbitrairement à chaque instant
+        -- et justement le but sera de s'assurer que quelle que soit 
+        -- la valeur de 'action' à chaque instant,
+        -- la machine ne se retrouve jamais dans une configuration indésirable
+        init(state) := off;
+
+        -- en fonction de la valeur de 'state'
+        -- et des variables libres à l'instant t, 
+        -- on définit la valeur de 'state' à l'instant t + 1
+        -- on doit définir toutes les possibilités pour
+        -- être exhaustif, mais cela est vite pénible et long,
+        -- on peut donc définir un cas par défaut,
+        -- ici l'état ne change pas si on est pas dans
+        -- l'un des deux premiers cas
+        next(state) := case
+            state = off & action = start : {on, broken};
+            state = on & action = stop : off;
+            TRUE : state;
+        esac;
+
+    -- les propriétés à vérifier
+    --
+    -- pour tous les chemins (A)
+    -- il est toujours vrai (G)
+    -- que l'état n'est pas 'on' et 'off' en même temps
+    -- comprendre : pour tous les chemins, on n'a
+    -- jamais l'état 'on' et 'off' en même temps
+    SPEC AG !(state = on & state = off);
+
+    -- il existe un chemin (E)
+    -- au bout d'un moment (F)
+    -- tous les chemins qui en découle (A)
+    -- il est toujours faux (G !)
+    -- que l'état est 'on'
+    -- comprendre : il existe un chemin,
+    -- tel qu'au bout d'un moment on ne pourra plus
+    -- jamais rallumer la machine
+    SPEC EF AG !(state = on);
+
+    SPEC EG state != broken;
+    SPEC AF state = broken;

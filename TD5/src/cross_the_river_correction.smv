@@ -1,0 +1,53 @@
+MODULE main
+
+    -- contrainte :
+    -- le loup, la chèvre et le chou doivent tous les trois
+    -- commencer du même côté de la rivière
+
+    VAR
+        wolf : boolean;
+        goat : boolean;
+        lettuce : boolean;
+        human : boolean;
+        eaten : boolean;
+        who_next : {w, g, l, n};
+
+    ASSIGN
+        init(wolf) := TRUE;
+        init(goat) := TRUE;
+        init(lettuce) := TRUE;
+        init(human) := TRUE;
+        init(eaten) := FALSE;
+
+        next(wolf) := case
+            who_next = w & human = wolf : !wolf;
+            TRUE : wolf;
+        esac;
+
+        next(goat) := case
+            who_next = g & human = goat : !goat;
+            TRUE : goat;
+        esac;
+
+        next(lettuce) := case
+            who_next = l & human = lettuce : !lettuce;
+            TRUE : lettuce;
+        esac;
+
+        next(human) := case
+            who_next = n : human;
+            TRUE : !human;
+        esac;
+
+        next(who_next) := case
+            TRUE : {w, g, l, n};
+        esac;
+
+        next(eaten) := case
+            wolf = goat & wolf != human : TRUE;
+            goat = lettuce & goat != human : TRUE;
+            TRUE : eaten;
+        esac;
+
+    LTLSPEC ! (G !(!wolf & !goat & !lettuce & !eaten));
+

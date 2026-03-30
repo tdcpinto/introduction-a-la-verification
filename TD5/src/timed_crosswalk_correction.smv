@@ -1,0 +1,110 @@
+MODULE main
+
+    -- on veut simuler un passage piéton,
+    -- pour ce faire on simule le feu des voitures
+    -- et celui des piétons
+    -- le but sera de s'assurer que notre logique
+    -- permet le bon fonctionnement des deux feux
+    -- sans accident
+    --
+    -- on ajoute maintenant une composante de temps
+    -- le feu piéton peut rester 20 secondes au vert
+    -- et le feu voiture 20 secondes au vert
+    -- et 3 secondes au orange
+
+    VAR
+        -- le feu des voitures (les anglais voit le
+        -- feu orange 'jaune', allez savoir pourquoi)
+        c_light : {red, yellow, green};
+
+        -- le feu des piétons
+        p_light : {red, green};
+
+        -- composantes temporelles
+        time_c_green : 0..30;
+        time_p_green : 0..30;
+        time_c_yellow : 0..5;
+
+        -- vous pouvez rajouter des variables si vous le souhaitez
+
+        -- who goes next
+        car_next : boolean;
+
+    -- on peut définir des propriétés dans des variables
+    DEFINE
+        car_go := (c_light = green | c_light = yellow);
+        walk := p_light = green;
+
+    ASSIGN
+        init(c_light) := red;
+        init(p_light) := red;
+        init(time_c_green) := 0;
+        init(time_c_yellow) := 0;
+        init(time_p_green) := 0;
+
+        next(c_light) := case
+            car_next & c_light = red & p_light = red : green;
+            c_light = green & time_c_green < 20 : {green, yellow};
+            c_light = green & time_c_green = 20 : yellow;
+            c_light = yellow & time_c_yellow < 3 : {yellow, red};
+            c_light = yellow & time_c_yellow = 3 : red;
+            TRUE : c_light;
+        esac;
+
+        next(p_light) := case
+            !car_next & c_light = red & p_light = red : green;
+            p_light = green & time_p_green < 20 : {green, red};
+            p_light = green & time_p_green = 20 : red;
+            TRUE : p_light;
+        esac;
+
+        next(car_next) := case 
+            p_light = red & c_light = red : !car_next;
+            TRUE : car_next;
+        esac;
+
+        next(time_c_green) := case
+            time_c_green > 21 : time_c_green;
+            c_light = green : time_c_green + 1;
+            TRUE : 0;
+        esac;
+
+        next(time_c_yellow) := case
+            time_c_yellow > 4 : time_c_yellow;
+            c_light = yellow : time_c_yellow + 1;
+            TRUE : 0;
+        esac;
+
+        next(time_p_green) := case
+            time_p_green > 21 : time_p_green;
+            p_light = green : time_p_green + 1;
+            TRUE : 0;
+        esac;
+        -- à vous de définir les règles de transitions
+
+    -- toutes les propriétés ci-dessous doivent
+    -- être vraies
+    
+    -- le feu voiture n'est pas vert ou orange en même temps
+    -- que celui des piétons
+    SPEC AG !(car_go & walk);
+
+    -- le feu voiture alterne entre les trois couleurs pour toujours
+    LTLSPEC G F c_light = green;
+    LTLSPEC G F c_light = yellow;
+    LTLSPEC G F c_light = red;
+
+    -- le feu piéton alterne entre les deux couleurs pour toujours
+    LTLSPEC G F p_light = green;
+    LTLSPEC G F p_light = red;
+
+    -- le feu piéton et le feu voiture sont rouges en même temps
+    LTLSPEC G F (p_light = red & c_light = red);
+
+    -- il n'y a pas de feu qui dépasse le temps maximal
+    LTLSPEC G ! (F (time_c_green >= 22 | time_c_yellow >= 5 | time_p_green >= 22));
+
+    -- les timers n'augmentent pas en même temps
+    LTLSPEC G ! F(time_c_green != 0 & time_c_yellow != 0);
+    LTLSPEC G ! F(time_c_green != 0 & time_p_green != 0);
+    LTLSPEC G ! F(time_c_yellow != 0 & time_p_green != 0);

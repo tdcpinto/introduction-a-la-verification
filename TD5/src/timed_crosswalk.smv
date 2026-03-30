@@ -1,0 +1,63 @@
+MODULE main
+
+    -- on veut simuler un passage piéton,
+    -- pour ce faire on simule le feu des voitures
+    -- et celui des piétons
+    -- le but sera de s'assurer que notre logique
+    -- permet le bon fonctionnement des deux feux
+    -- sans accident
+    --
+    -- on ajoute maintenant une composante de temps
+    -- le feu piéton peut rester 20 secondes au vert
+    -- et le feu voiture 20 secondes au vert
+    -- et 3 secondes au orange
+
+    VAR
+        -- le feu des voitures (les anglais voit le
+        -- feu orange 'jaune', allez savoir pourquoi)
+        c_light : {red, yellow, green};
+
+        -- le feu des piétons
+        p_light : {red, green};
+
+        -- composantes temporelles
+        time_c_green : 0..30;
+        time_p_green : 0..30;
+        time_c_yellow : 0..5;
+
+        -- vous pouvez rajouter des variables si vous le souhaitez
+
+    -- on peut définir des propriétés dans des variables
+    DEFINE
+        car_go := (c_light = green | c_light = yellow);
+        walk := p_light = green;
+
+    ASSIGN
+        -- à vous de définir les règles de transitions
+
+    -- toutes les propriétés ci-dessous doivent
+    -- être vraies
+    
+    -- le feu voiture n'est pas vert ou orange en même temps
+    -- que celui des piétons
+    SPEC AG !(car_go & walk);
+
+    -- le feu voiture alterne entre les trois couleurs pour toujours
+    LTLSPEC G F c_light = green;
+    LTLSPEC G F c_light = yellow;
+    LTLSPEC G F c_light = red;
+
+    -- le feu piéton alterne entre les deux couleurs pour toujours
+    LTLSPEC G F p_light = green;
+    LTLSPEC G F p_light = red;
+
+    -- le feu piéton et le feu voiture sont rouges en même temps
+    LTLSPEC G F (p_light = red & c_light = red);
+
+    -- il n'y a pas de feu qui dépasse le temps maximal
+    LTLSPEC G ! (F (time_c_green >= 22 | time_c_yellow >= 5 | time_p_green >= 22));
+
+    -- les timers n'augmentent pas en même temps
+    LTLSPEC G ! F(time_c_green != 0 & time_c_yellow != 0);
+    LTLSPEC G ! F(time_c_green != 0 & time_p_green != 0);
+    LTLSPEC G ! F(time_c_yellow != 0 & time_p_green != 0);

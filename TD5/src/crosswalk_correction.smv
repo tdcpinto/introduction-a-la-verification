@@ -1,0 +1,68 @@
+MODULE main
+
+    -- on veut simuler un passage piéton,
+    -- pour ce faire on simule le feu des voitures
+    -- et celui des piétons
+    -- le but sera de s'assurer que notre logique
+    -- permet le bon fonctionnement des deux feux
+    -- sans accident
+
+    VAR
+        -- le feu des voitures (les anglais voit le
+        -- feu orange 'jaune', allez savoir pourquoi)
+        c_light : {red, yellow, green};
+
+        -- le feu des piétons
+        p_light : {red, green};
+
+        -- who goes next
+        car_next : boolean;
+
+        -- vous pouvez rajouter des variables si vous le souhaitez
+
+    -- on peut définir des propriétés dans des variables
+    DEFINE
+        car_go := (c_light = green | c_light = yellow);
+        walk := p_light = green;
+
+    ASSIGN
+        -- à vous de définir les règles de transitions
+        init(c_light) := red;
+        init(p_light) := red;
+
+        next(c_light) := case
+            car_next & p_light = red & c_light = red : green;
+            c_light = green : yellow;
+            c_light = yellow : red;
+            TRUE : c_light;
+        esac;
+
+        next(p_light) := case
+            !car_next & p_light = red & c_light = red : green;
+            p_light = green : red;
+            TRUE : p_light;
+        esac;
+
+        next(car_next) := case
+            c_light = red & p_light = red : !car_next;
+            TRUE : car_next;
+        esac;
+
+    -- toutes les propriétés ci-dessous doivent
+    -- être vraies
+    
+    -- le feu voiture n'est pas vert ou orange en même temps
+    -- que celui des piétons
+    SPEC AG !(car_go & walk);
+
+    -- le feu voiture alterne entre les trois couleurs pour toujours
+    LTLSPEC G F c_light = green;
+    LTLSPEC G F c_light = yellow;
+    LTLSPEC G F c_light = red;
+
+    -- le feu piéton alterne entre les deux couleurs pour toujours
+    LTLSPEC G F p_light = green;
+    LTLSPEC G F p_light = red;
+
+    -- le feu piéton et le feu voiture sont rouges en même temps
+    LTLSPEC G F (p_light = red & c_light = red);

@@ -1,0 +1,136 @@
+MODULE main
+
+    -- On a trois seaux de capacités :
+    --    12 litres
+    --    8 litres
+    --    5 litres
+    -- On commence avec le seau de 12 litres plein
+    -- On peut tranvaser l'eau d'un seau à l'autre
+    -- mais comme ils ne sont pas gradués, il faut 
+    -- transvaser jusqu'à ce que le seau qui reçoit
+    -- soit plein
+    --
+    -- ex : je verse le seau de 12 litres dans celui
+    -- de 5 litres --> j'ai à présent 7 litres dans
+    -- le seau de 12 litres, et 5 dans celui de 5 litres
+    --
+    -- Question : Est-il possible de faire une suite de
+    -- transvasement, tel qu'on ait 6 litres dans le seau
+    -- de 12 litres, et 6 litres dans le seau de 8 litres ?
+    --
+    -- Ajoutez aussi une propriété qui vérifie que
+    -- la somme des contenus des seaux est toujours 12.
+    
+    -- Une fois cela fait, essayez de voir s'il existe une
+    -- solution avec le grand seau qui aurait une contenance
+    -- de 13 litres.
+
+    -- VAR
+    --     big : 0..12;
+    --     medium : 0..8;
+    --     small : 0..5;
+
+    --     action : {bm, bs, mb, ms, sb, sm, n};
+
+    -- ASSIGN
+    --     init(big) := 12;
+    --     init(medium) := 0;
+    --     init(small) := 0;
+        
+    --     next(big) := case
+    --         action = bm & big >= (8 - medium) : big - (8 - medium);
+    --         action = bm & big < (8 - medium) : 0;
+    --         action = bs & big >= (5 - small) : big - (5 - small);
+    --         action = bs & big < (5 - small) : 0;
+    --         action = mb & medium >= (12 - big) : 12;
+    --         action = mb & medium < (12 - big) : big + medium;
+    --         action = sb & small >= (12 - big) : 12;
+    --         action = sb & small < (12 - big) : big + small;
+    --         TRUE : big;
+    --     esac;
+
+    --     next(medium) := case
+    --         action = mb & medium >= (12 - big) : medium - (12 - big);
+    --         action = mb & medium < (12 - big) : 0;
+    --         action = ms & medium >= (5 - small) : medium - (5 - small);
+    --         action = ms & medium < (5 - small) : 0;
+    --         action = bm & big >= (8 - medium) : 8;
+    --         action = bm & big < (8 - medium) : big + medium;
+    --         action = sm & small >= (8 - medium) : 8;
+    --         action = sm & small < (8 - medium) : small + medium;
+    --         TRUE : medium;
+    --     esac;
+
+    --     next(small) := case
+    --         action = sb & small >= (12 - big) : small - (12 - big);
+    --         action = sb & small < (12 - big) : 0;
+    --         action = sm & small >= (8 - medium) : small - (8 - medium);
+    --         action = sm & small < (8 - medium) : 0;
+    --         action = bs & big >= (5 - small) : 5;
+    --         action = bs & big < (5 - small) : big + small;
+    --         action = ms & medium >= (5 - small) : 5;
+    --         action = ms & medium < (5 - small) : medium + small;
+    --         TRUE : small;
+    --     esac;
+
+    --     next(action) := case
+    --         TRUE : {bm, bs, mb, ms, sb, sm, n};
+    --     esac;
+
+    -- LTLSPEC ! (F (big + medium + small != 12));
+    -- LTLSPEC ! (F (big = 6 & medium = 6 & small = 0));
+
+    VAR
+        big : 0..13;
+        medium : 0..8;
+        small : 0..5;
+
+        action : {bm, bs, mb, ms, sb, sm, n};
+
+    ASSIGN
+        init(big) := 13;
+        init(medium) := 0;
+        init(small) := 0;
+        
+        next(big) := case
+            action = bm & big >= (8 - medium) : big - (8 - medium);
+            action = bm & big < (8 - medium) : 0;
+            action = bs & big >= (5 - small) : big - (5 - small);
+            action = bs & big < (5 - small) : 0;
+            action = mb & medium >= (13 - big) : 13;
+            action = mb & medium < (13 - big) : big + medium;
+            action = sb & small >= (13 - big) : 13;
+            action = sb & small < (13 - big) : big + small;
+            TRUE : big;
+        esac;
+
+        next(medium) := case
+            action = mb & medium >= (13 - big) : medium - (13 - big);
+            action = mb & medium < (13 - big) : 0;
+            action = ms & medium >= (5 - small) : medium - (5 - small);
+            action = ms & medium < (5 - small) : 0;
+            action = bm & big >= (8 - medium) : 8;
+            action = bm & big < (8 - medium) : big + medium;
+            action = sm & small >= (8 - medium) : 8;
+            action = sm & small < (8 - medium) : small + medium;
+            TRUE : medium;
+        esac;
+
+        next(small) := case
+            action = sb & small >= (13 - big) : small - (13 - big);
+            action = sb & small < (13 - big) : 0;
+            action = sm & small >= (8 - medium) : small - (8 - medium);
+            action = sm & small < (8 - medium) : 0;
+            action = bs & big >= (5 - small) : 5;
+            action = bs & big < (5 - small) : big + small;
+            action = ms & medium >= (5 - small) : 5;
+            action = ms & medium < (5 - small) : medium + small;
+            TRUE : small;
+        esac;
+
+        next(action) := case
+            TRUE : {bm, bs, mb, ms, sb, sm, n};
+        esac;
+
+    LTLSPEC ! (F (big + medium + small != 13));
+    LTLSPEC ! (F (big = 6 & medium = 6 & small = 1));
